@@ -1,0 +1,14 @@
+{
+  "name": "sergolova/CINEMA",
+  "description": "test",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "seriy",
+      "email": "sergolova@tutanota.com"
+    }
+  ],
+  "require": {
+  }
+}

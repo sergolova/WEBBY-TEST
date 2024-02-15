@@ -1,3 +1,30 @@
 -------------------------------------------
-Start php server:
+// Start php server:
 > php -S localhost:8000
+
+// install mbstring extension in php
+> sudo apt-get install php8.2-mbstring
+
+// install sqli extension in php
+> sudo apt-get install php8.2-sqli
+
+
+
+// install mysql server(if need):
+> sudo apt-get install mysql-server
+
+// check mysql service status:
+> service mysql status
+
+// run mysql service(if need):
+> service mysql start
+
+// enter to the mysql from command line without password:
+> sudo mysql -u root
+
+// enter to the mysql from command line with password:
+> sudo mysql -u root -p
+
+// change user password to root
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+mysql> FLUSH PRIVILEGES;
