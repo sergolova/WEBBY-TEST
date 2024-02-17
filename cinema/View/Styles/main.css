@@ -1,0 +1,131 @@
+body {
+   margin: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo {
+    margin-left: 30px;
+}
+
+.logo a {
+    text-transform: uppercase;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: orange;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.notfound-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.user-info span {
+    margin-right: 10px;
+}
+
+.user-info .auth-btn {
+    background-color: #ccc;
+    color: #333;
+    padding: 5px 10px;
+    border: 1px solid #333;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.user-info .auth-btn:hover {
+    background-color: #fff;
+    color: #111;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.auth-container {
+    width: 300px;
+    padding: 20px;
+    background-color: #fff;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container .auth-error {
+    color: darkred;
+    font-weight: bolder;
+}
+
+.auth-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-container label {
+    margin-bottom: 5px;
+}
+
+.auth-container input {
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.auth-container button {
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.auth-container button:hover {
+    background-color: #2980b9;
+}
+
+main {
+    /*padding-top: 20px;*/
+    /*background-color: orange;*/
+    /*margin-top: 40px;*/
+}
+
+footer {
+    background-color: #333;
+    color: #8a8a8a;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

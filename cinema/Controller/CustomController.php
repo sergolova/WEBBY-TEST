@@ -4,17 +4,15 @@ namespace Controller;
 
 class CustomController
 {
-    const TEMPLATES_PATH = 'Template/';
-
-    public function index()
+    public function getTemplate(string $name, array $args = [])
     {
+        $file = TEMPLATES_DIR . '/' . $name . '.php';
+        if (file_exists($file)) {
+            extract($args); // creating global variables for the template
+            include $file;
+        } else {
+            echo ("Template not found: $file <br>\n");
+        }
     }
-
-    public function getTemplate(string $name, array $args=[])
-    {
-        extract($args);
-        require self::TEMPLATES_PATH . $name . '.php';
-    }
-
 
 }
