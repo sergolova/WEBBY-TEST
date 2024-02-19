@@ -1,8 +1,25 @@
 body {
-   margin: 0;
+    margin: 0;
+    background-color: #e7e7e7;
+    background-image: url("/View/Images/bg.webp"), url("/View/Images/bg.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    margin-top: 70px;
+    flex: 1;
+    margin-bottom: 50px; 
 }
 
 header {
+    background-image: url("/View/Images/cinema.svg");
+    background-blend-mode: darken;
     background-color: #333;
     color: #fff;
     padding: 10px 0;
@@ -15,8 +32,48 @@ header {
     z-index: 1000;
 }
 
+footer {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #8a8a8a;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    bottom: 0;
+    flex-direction: column;
+    row-gap: 10px;
+    box-shadow: 0 -10px rgba(0,0,0,0.3);
+}
+
+.content-container {
+    max-width: 920px;
+    min-width: 200px;
+    min-height: 460px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+/* an attempt to adjust the minimum content height to the cinema “screen” in the background  */
+@media (max-width: 400px) and (orientation: portrait) {
+    .content-container {
+        min-height: 300px;
+    }
+}
+
+@media (orientation: landscape) {
+    @media (max-width: 667px) {
+        .content-container {
+            min-height: 100px;
+        }
+    }
+}
+
 .logo {
     margin-left: 30px;
+    background-color: black;
 }
 
 .logo a {
@@ -31,26 +88,41 @@ header {
     display: flex;
     align-items: center;
     margin-right: 20px;
+    background-color: black;
 }
 
 .notfound-container {
-    display: flex;
-    align-items: center;
-    margin-right: 20px;
+    text-align: center;
+    font-size: 3em;
+    font-weight: bold;
+    color: #333;
+    background-color: #fff;
+    max-width: 600px;
+    min-width: 250px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 43%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .user-info span {
     margin-right: 10px;
+    text-align: right;
+    letter-spacing: 1px;
 }
 
 .user-info .auth-btn {
-    background-color: #ccc;
-    color: #333;
+    background-color: #000;
+    color: #fff;
     padding: 5px 10px;
     border: 1px solid #333;
     text-decoration: none;
     border-radius: 5px;
     margin: 0 5px;
+    letter-spacing: 0.7px;
 }
 
 .user-info .auth-btn:hover {
@@ -58,22 +130,17 @@ header {
     color: #111;
 }
 
-#container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-}
-
 .auth-container {
-    width: 300px;
+    background: rgba(255,255,255,0.2);
+    max-width: 300px;
+    min-width: 150px;
     padding: 20px;
-    background-color: #fff;
-    border: 2px solid #3498db;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 43%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .auth-container .auth-error {
@@ -88,6 +155,9 @@ header {
 
 .auth-container label {
     margin-bottom: 5px;
+    background-color: rgba(255,255,255,0.2);
+    width: max-content;
+    text-wrap: none;
 }
 
 .auth-container input {
@@ -112,20 +182,51 @@ header {
     background-color: #2980b9;
 }
 
-main {
-    /*padding-top: 20px;*/
-    /*background-color: orange;*/
-    /*margin-top: 40px;*/
+footer a {
+    background: #000;
+    text-decoration: none;
+    color: #8a8a8a;
 }
 
-footer {
-    background-color: #333;
-    color: #8a8a8a;
-    padding: 10px;
+footer span {
+    background: black;
+}
+
+footer a:hover {
+    color: white;
+}
+
+.message-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.message-container i {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.message-container p {
+    font-size: 18px;
+    margin: 0;
+}
+
+.info {
+    background-color: #2977ab;
+    color: #fff;
+}
+
+.success {
+    background-color: #28af61;
+    color: #fff;
+}
+
+.error {
+    background-color: #b6392c;
+    color: #fff;
 }

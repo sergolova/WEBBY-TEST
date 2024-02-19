@@ -1,0 +1,226 @@
+.movies-container .search-bar {
+    margin: 20px 0;
+}
+
+.movies-container .search-bar form {
+    display: flex;
+    align-items: center;
+    justify-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-movies-container {
+    display: flex;
+    align-items: center;
+    justify-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cancel {
+    width: 32px;
+}
+
+.movies-container .search-bar input {
+    padding: 8px;
+    border-radius: 4px;
+    border-color: silver;
+    border-width: 1px;
+}
+
+.movies-container .search-bar button {
+    padding: 8px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.movies-container .search-bar button:hover {
+    background-color: #2980b9;
+}
+
+.movies-container button {
+    padding: 8px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.movies-container button:hover {
+    background-color: #2980b9;
+}
+
+.movies-container .movie-list .movie-item {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    position: relative;
+    background-color: #eee;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.movies-container .movie-list a {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.movies-container .movie-list a:hover {
+    text-decoration: underline;
+}
+
+.movies-container .movie-list p {
+    margin: 8px 0;
+}
+
+.movies-container .movie-item .movie-attr {
+    color: #333;
+    font-weight: bold;
+    margin-right: 8px;
+    margin-left: 20px;
+}
+
+.movies-container .movie-list button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: #ff5757;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.movies-container .movie-list button:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.add-movie-form {
+    width: 400px;
+    padding: 20px;
+    background-color: #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 43%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.add-movie-form h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.add-movie-form label > * {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.add-movie-form textarea {
+    resize: vertical;
+    min-height: 30px;
+    max-height: 200px;
+}
+
+.add-movie-form input,
+.add-movie-form select,
+.add-movie-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+}
+
+.add-movie-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-movie-form button:hover {
+    background-color: #2980b9;
+}
+
+.add-movie-form .cancel {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.add-movie-form .cancel:hover {
+    background-color: #c0392b;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.movie-list-info {
+    margin-bottom: 10px;
+}
+
+.movie-details h1 {
+    font-weight: bold;
+    margin-top: 0 !important;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.movie-details p {
+    margin-bottom: 10px;
+}
+
+.movie-details span {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.movie-details .movie-attr {
+    font-weight: bold;
+    margin-right: 8px;
+}

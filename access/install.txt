@@ -8,8 +8,6 @@
 // install sqli extension in php
 > sudo apt-get install php8.2-sqli
 
-
-
 // install mysql server(if need):
 > sudo apt-get install mysql-server
 

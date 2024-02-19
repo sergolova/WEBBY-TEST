@@ -1,3 +1,61 @@
-{
-    
-}
+[
+  {
+    "name": "home",
+    "route": "/",
+    "controller": "MovieController",
+    "method": "home"
+  },
+  {
+    "name": "about",
+    "route": "/about",
+    "controller": "MainController",
+    "method": "about"
+  },
+  {
+    "name": "movie-delete",
+    "route": "/movie-delete",
+    "controller": "MovieController",
+    "method": "movieDelete"
+  },
+  {
+    "name": "movie-add",
+    "route": "/movie-add",
+    "controller": "MovieController",
+    "method": "movieAdd"
+  },
+  {
+    "name": "movie-import",
+    "route": "/movie-import",
+    "controller": "MovieController",
+    "method": "movieImport"
+  },
+  {
+    "name": "movie-details",
+    "route": "/movie-details",
+    "controller": "MovieController",
+    "method": "movieDetails"
+  },
+  {
+    "name": "login",
+    "route": "/login",
+    "controller": "AuthController",
+    "method": "login"
+  },
+  {
+    "name": "logout",
+    "route": "/logout",
+    "controller": "AuthController",
+    "method": "logout"
+  },
+  {
+    "name": "unregister",
+    "route": "/unregister",
+    "controller": "AuthController",
+    "method": "unregister"
+  },
+  {
+    "name": "not-found",
+    "controller": "CommonController",
+    "method": "notFound"
+  }
+]

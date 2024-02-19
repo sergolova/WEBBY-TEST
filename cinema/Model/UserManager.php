@@ -6,7 +6,9 @@ use Error;
 
 class UserManager
 {
-    const TABLE_NAME = 'users';
+    private const TABLE_NAME = 'users';
+    private const TOKEN_LEN = 8;
+    private const SALT_LEN = 32;
 
     public static ?UserManager $instance = null;
     private readonly DatabaseManager $db;
@@ -18,7 +20,7 @@ class UserManager
         $this->init();
     }
 
-    public static function getUserManager(): UserManager
+    public static function getInstance(): UserManager
     {
         if (self::$instance === null) {
             self::$instance = new UserManager();
@@ -33,7 +35,7 @@ class UserManager
 
     public function generateCsrfToken(): string
     {
-        $token = bin2hex(random_bytes(32));
+        $token = bin2hex(random_bytes(self::TOKEN_LEN));
         $this->setSessionData([
             'csrf_token' => $token,
         ]);
@@ -51,12 +53,21 @@ class UserManager
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(256) NOT NULL,
         hash VARCHAR(256) NOT NULL,
-        salt VARCHAR(256) NOT NULL
-    )";
+        salt VARCHAR(256) NOT NULL)";
 
         if ($this->db->conn->query($createTableQuery) !== TRUE) {
-            throw new Error('Error creating table:' . $this->db->conn->error);
+            throw new Error('Error creating table: ' . $this->db->conn->error);
         }
+    }
+
+    /** Checking the access rights of a specific user...
+     * @param string|array $code
+     * @return bool
+     */
+    public function userCan(string|array $code = ''): bool
+    {
+        $user = $this->getCurrentUser();
+        return $user && ($user->can($code));
     }
 
     public function getCurrentUser(): ?User
@@ -72,36 +83,32 @@ class UserManager
     {
         $query = 'SELECT * FROM ' . self::TABLE_NAME . ' WHERE id = ?';
         $statement = $this->db->conn->prepare($query);
-        $statement->bind_param('i', $id);
-        $statement->execute();
-        $result = $statement->get_result();
+        $row = null;
 
-        if ($result->num_rows > 0) {
+        if ($statement) {
+            $statement->bind_param('i', $id);
+            $statement->execute();
+            $result = $statement->get_result();
             $row = $result->fetch_assoc();
-            $user = User::FromRow($row);
-
-            return $user;
+            $statement->close();
         }
-
-        return null;
+        return is_array($row) ? User::FromArray($row) : null;
     }
 
     public function getUserByName(string $username): ?User
     {
         $query = 'SELECT * FROM ' . self::TABLE_NAME . ' WHERE username = ?';
         $statement = $this->db->conn->prepare($query);
-        $statement->bind_param('s', $username);
-        $statement->execute();
-        $result = $statement->get_result();
+        $row = null;
 
-        if ($result->num_rows > 0) {
+        if ($statement) {
+            $statement->bind_param('s', $username);
+            $statement->execute();
+            $result = $statement->get_result();
+            $statement->close();
             $row = $result->fetch_assoc();
-            $user = User::FromRow($row);
-
-            return $user;
         }
-
-        return null;
+        return is_array($row) ? User::FromArray($row) : null;
     }
 
     public function login(string $username, string $password): bool
@@ -119,7 +126,6 @@ class UserManager
             }
         }
         return false;
-
     }
 
     public function logout(): bool
@@ -127,24 +133,20 @@ class UserManager
         return @session_destroy();
     }
 
-    public function unregister(string $username): bool
+    public function unregister(int $id): bool
     {
-        $username = mysqli_real_escape_string($this->db->conn, $username);
-        $sql = 'DELETE FROM ' . self::TABLE_NAME . ' WHERE username = ?';
-        $res = $this->db->conn->prepare($sql);
+        $query = 'DELETE FROM ' . self::TABLE_NAME . ' WHERE id = ?';
+        $statement = $this->db->conn->prepare($query);
 
-        if ($res) {
-            $res->bind_param('s', $username);
-            $res->execute();
-            return !$res->errno;
-        } else {
-            return false;
+        if ($statement) {
+            $statement->bind_param('i', $id);
+            $statement->execute();
+            $result = !$statement->errno;
+            $statement->close();
+            return $result;
         }
-    }
 
-    public function isLoggedIn(): bool
-    {
-        return is_numeric($this->getSessionData('user_id'));
+        return false;
     }
 
     public function setSessionData(array $data): void
@@ -165,22 +167,25 @@ class UserManager
             return false;
         }
 
-        $salt = base64_encode(random_bytes(32));
+        $salt = base64_encode(random_bytes(self::SALT_LEN));
         $hashedPassword = hash('sha256', $password . $salt);
 
-        $username = mysqli_real_escape_string($this->db->conn, $username);
-        $hashedPassword = mysqli_real_escape_string($this->db->conn, $hashedPassword);
+        $query = 'INSERT INTO ' . self::TABLE_NAME . ' (username, hash, salt) VALUES (?, ?, ?)';
+        $statement = $this->db->conn->prepare($query);
 
-        $query = "INSERT INTO " . self::TABLE_NAME . " (username, hash, salt) VALUES ('$username', '$hashedPassword', '$salt')";
-        mysqli_query($this->db->conn, $query);
-
-        // ..........
-        return true;
+        if ($statement) {
+            $statement->bind_param('sss', $username, $hashedPassword, $salt);
+            $statement->execute();
+            $result = !$statement->errno;
+            $statement->close();
+            return $result;
+        }
+        
+        return false;
     }
 
     private function userExists(string $username): bool
     {
-        $user = $this->getUserByName($username);
-        return $user !== null;
+        return $this->getUserByName($username) !== null;
     }
 }

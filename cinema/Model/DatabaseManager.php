@@ -7,17 +7,24 @@ use mysqli;
 
 class DatabaseManager
 {
+    private const CONFIG_NAME = 'db.json';
+    private static ?DatabaseManager $instance = null;
+
     public mysqli $conn;
-    public static ?DatabaseManager $instance = null;
+    private array $config = [];
 
     public function __construct()
     {
-       $this->conn = $this->initConnection();
+        if (!$this->load()) {
+            throw new \Error('Invalid database config');
+        }
+
+        $this->conn = $this->initConnection();
     }
 
     public function __destruct()
     {
-       $this->closeConnection();
+        $this->closeConnection();
     }
 
     public static function getDatabaseManager(): DatabaseManager
@@ -28,29 +35,36 @@ class DatabaseManager
         return self::$instance;
     }
 
-    private function initConnection(): mysqli
+    protected function load(): bool
     {
-        $servername = 'localhost';
-        $username = 'root';
-        $password = 'root';
-        $dbname = 'cinema';
+        $jsonString = file_get_contents(CONFIG_DIR . '/' . self::CONFIG_NAME);
+        $data = json_decode($jsonString, true);
 
-        $conn = new mysqli($servername, $username, $password);
+        if (is_array($data)) {
+            $this->config = $data;
+            return true;
+        }
+        return false;
+    }
+
+    protected function initConnection(): mysqli
+    {
+        $conn = new mysqli($this->config['server'], $this->config['user'], $this->config['password']);
 
         if ($conn->connect_error) {
             throw new Error('Database connection error:' . $conn->connect_error);
         }
 
-        if ($conn->query("CREATE DATABASE IF NOT EXISTS `$dbname`") !== TRUE) {
+        if ($conn->query("CREATE DATABASE IF NOT EXISTS `{$this->config['db']}`") !== TRUE) {
             throw new Error('Error creating database:' . $conn->error);
         }
 
-        $conn->select_db($dbname);
+        $conn->select_db($this->config['db']);
 
         return $conn;
     }
 
-    public function closeConnection(): void
+    protected function closeConnection(): void
     {
         $this->conn->close();
     }

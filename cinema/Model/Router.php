@@ -2,45 +2,96 @@
 
 namespace Model;
 
-use Controller\MainController;
-use JetBrains\PhpStorm\NoReturn;
-
 class Router
 {
-    public static ?Router $instance = null;
+    private const PAGE_NOT_FOUND = 'not-found';
+    private const CONFIG_NAME = 'routes.json';
+    private static ?Router $instance = null;
+    private array $routes = [];
 
-    public function route($path): void
+    public function __construct()
     {
-        $controller = new MainController();
-
-        switch ($path) {
-            case '/':
-                $controller->home();
-                break;
-            case '/about':
-                $controller->about();
-                break;
-            case '/login':
-                $controller->login();
-                break;
-            case '/logout':
-                $controller->logout();
-                break;
-            case '/unregister':
-                $controller->unregister();
-                break;
-            default:
-                $controller->notFound($path);
+        if (!$this->load()) {
+            throw new \Error('Invalid routes config');
         }
     }
 
-    public function redirect(string $to, int $code = 302): never
+    private function load(): bool
     {
+        $jsonString = file_get_contents(CONFIG_DIR . '/' . self::CONFIG_NAME);
+        $data = json_decode($jsonString, true);
+
+        if (is_array($data)) {
+            $this->routes = $data;
+            return true;
+        }
+        return false;
+    }
+
+    private function callControllerMethod(array $routeItem): bool
+    {
+        $controllerClass = '\Controller\\' . $routeItem['controller'];
+        $controllerMethod = @$routeItem['method'];
+        if (class_exists($controllerClass) && $controllerMethod) {
+            $controller = new $controllerClass();
+            if (method_exists($controllerClass, $controllerMethod)) {
+                $controller->$controllerMethod();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function processNotFound(): void
+    {
+        foreach ($this->routes as $route) {
+            if (@$route['name'] === self::PAGE_NOT_FOUND) {
+                if ($this->callControllerMethod($route)) {
+                    return;
+                }
+            }
+        }
+
+        http_response_code(404);
+        die;//('Page not found');
+    }
+
+    public function route(string $uri): void
+    {
+        $urlArr = parse_url($uri);
+
+        foreach ($this->routes as $route) {
+            if (@$route['route'] === $urlArr['path']) {
+                if ($this->callControllerMethod($route)) {
+                    return;
+                }
+            }
+        }
+
+        $this->processNotFound();
+    }
+
+    public static function redirect(string $to, array $params=[], int $code = 302): never
+    {
+        if (!empty($params)) {
+            $to .= '?' . http_build_query($params);
+        }
         header("Location: $to", true, $code);
         exit;
     }
 
-    public static function getRouter(): Router
+    public function redirectToName(string $name, array $params=[], int $code = 302): never
+    {
+        foreach ($this->routes as $route) {
+            if ($route['name'] === $name) {
+                self::redirect($route['route'], $params,$code);
+            }
+        }
+
+        $this->processNotFound();
+    }
+
+    public static function getInstance(): Router
     {
         if (self::$instance === null) {
             self::$instance = new Router();

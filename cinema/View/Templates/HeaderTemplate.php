@@ -11,7 +11,12 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?= $title ?? 'Cinema' ?></title>
-    <link rel='stylesheet' href='<?= STYLES_URL . '/main.css' ?>'>
+
+    <?php if (isset($styles)) : ?>
+        <?php foreach ($styles as $style): ?>
+            <link rel='stylesheet' href='<?= STYLES_URL . '/' . $style . '.css' ?>'>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </head>
 <body>
 <header>

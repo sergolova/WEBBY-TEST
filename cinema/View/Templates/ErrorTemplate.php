@@ -1,13 +1,11 @@
 <?php
+/** @var int|string $code */
+/** @var string $message */
 include 'HeaderTemplate.php';
 ?>
-
-<div id="container">
     <div class='notfound-container'>
-        <div>404 - not found :(</div>
+        <div><span><?= $code ?? '404' ?></span> - <span><?= $message ?? 'Not found :(' ?></span></div>
     </div>
-</div>
-
 <?php
 include 'FooterTemplate.php';
 ?>
