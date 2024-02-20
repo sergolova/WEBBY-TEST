@@ -1,5 +1,14 @@
 <?php
 
+function isStaticResourceRequest(): bool
+{
+    $uri = urldecode(
+        parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+    );
+
+    return $uri !== '/' && file_exists(PROJECT_DIR . $uri);
+}
+
 // REQUIREMENTS CHECK
 
 if (!extension_loaded('mysqli')) {

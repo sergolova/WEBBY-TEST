@@ -1,6 +1,5 @@
--------------------------------------------
 // Start php server:
-> php -S localhost:8000
+> php -S localhost:8000 index.php
 
 // install mbstring extension in php
 > sudo apt-get install php8.2-mbstring

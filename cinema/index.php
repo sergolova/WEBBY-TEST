@@ -2,20 +2,12 @@
 
 use Model\Router;
 
-require "init.php";
-require "autoloader.php";
-
-$u = \Model\UserManager::getInstance();
-
-//var_dump($u->getUserByName('gvs')); die;
+require_once "init.php";
+require_once "autoloader.php";
 
 // RESOURCE MANAGEMENT
 
-$uri = urldecode(
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
-);
-
-if ($uri !== '/' && file_exists(PROJECT_DIR . $uri)) {
+if (isStaticResourceRequest()) {
     return false;
 }
 
