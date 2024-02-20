@@ -1,5 +1,5 @@
 <?php
-/** @var string $authError */
+/** @var array $authErrors */
 /** @var int $token */
 include "HeaderTemplate.php";
 ?>
@@ -16,8 +16,10 @@ include "HeaderTemplate.php";
             <button type="submit" name="login">Sign in</button>
             <button type="submit" name='register'>Register</button>
 
-            <?php if (isset($authError)): ?>
-                <span class="auth-error"><?= $authError ?></span>
+            <?php if (isset($authErrors)): ?>
+                <?php foreach ($authErrors as $error): ?>
+                    <div class="auth-error"><?= $error ?></div>
+                <?php endforeach; ?>
             <?php endif; ?>
         </form>
     </div>

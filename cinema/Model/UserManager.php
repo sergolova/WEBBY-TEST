@@ -60,6 +60,30 @@ class UserManager
         }
     }
 
+    /**
+     * @param string $userName
+     * @return array - array of errors
+     */
+    public function validateUserName(string $userName): array {
+        $result = [];
+        if (strlen($userName) < 3) {
+            $result[] = 'UserName length must be more than 3 characters';
+        }
+        return $result;
+    }
+
+    /**
+     * @param string $password
+     * @return array - array of errors
+     */
+    public function validatePassword(string $password): array {
+        $result = [];
+        if (strlen($password) < 2) {
+            $result[] = 'Password length must be more than 3 characters';
+        }
+        return $result;
+    }
+
     /** Checking the access rights of a specific user...
      * @param string|array $code
      * @return bool

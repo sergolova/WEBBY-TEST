@@ -16,19 +16,24 @@ class Router
         }
     }
 
-    private function load(): bool
+    public static function getInstance(): Router
+    {
+        if (self::$instance === null) {
+            self::$instance = new Router();
+        }
+        return self::$instance;
+    }
+
+    protected function load(): bool
     {
         $jsonString = file_get_contents(CONFIG_DIR . '/' . self::CONFIG_NAME);
         $data = json_decode($jsonString, true);
+        $this->routes = is_array($data) ? $data : [];
 
-        if (is_array($data)) {
-            $this->routes = $data;
-            return true;
-        }
-        return false;
+        return (bool)$this->routes;
     }
 
-    private function callControllerMethod(array $routeItem): bool
+    protected function callControllerMethod(array $routeItem): bool
     {
         $controllerClass = '\Controller\\' . $routeItem['controller'];
         $controllerMethod = @$routeItem['method'];
@@ -53,15 +58,15 @@ class Router
         }
 
         http_response_code(404);
-        die;//('Page not found');
+        exit;
     }
 
     public function route(string $uri): void
     {
-        $urlArr = parse_url($uri);
+        $urlParts = parse_url($uri);
 
         foreach ($this->routes as $route) {
-            if (@$route['route'] === $urlArr['path']) {
+            if (@$route['route'] === $urlParts['path']) {
                 if ($this->callControllerMethod($route)) {
                     return;
                 }
@@ -71,7 +76,7 @@ class Router
         $this->processNotFound();
     }
 
-    public static function redirect(string $to, array $params=[], int $code = 302): never
+    public function redirect(string $to, array $params=[], int $code = 302): never
     {
         if (!empty($params)) {
             $to .= '?' . http_build_query($params);
@@ -83,19 +88,12 @@ class Router
     public function redirectToName(string $name, array $params=[], int $code = 302): never
     {
         foreach ($this->routes as $route) {
-            if ($route['name'] === $name) {
-                self::redirect($route['route'], $params,$code);
+            if (@$route['name'] === $name && isset($route['route'])) {
+                $this->redirect($route['route'], $params,$code);
             }
         }
 
         $this->processNotFound();
-    }
-
-    public static function getInstance(): Router
-    {
-        if (self::$instance === null) {
-            self::$instance = new Router();
-        }
-        return self::$instance;
+        exit;
     }
 }

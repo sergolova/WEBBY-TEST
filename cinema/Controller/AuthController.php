@@ -3,8 +3,7 @@
 namespace Controller;
 
 use Model\Router;
-use Model\UserManager as UserManager;
-use \Exception as Exception;
+use Exception;
 
 class AuthController extends CommonController
 {
@@ -23,7 +22,7 @@ class AuthController extends CommonController
      */
     public function login(): void
     {
-        $authError = '';
+        $authErrors = [];
         try {
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $this->csrfCheck();
@@ -31,12 +30,17 @@ class AuthController extends CommonController
                 $username = @$_POST['username'];
                 $password = @$_POST['password'];
 
-                if (isset($_POST['login'])) {
+                $errors = $this->userManager->validateUserName($username) +
+                    $this->userManager->validatePassword($password);
+
+                if ($errors) {
+                    $authErrors = array_merge($authErrors, $errors);
+                } elseif (isset($_POST['login'])) {
                     $authResult = $this->userManager->login($username, $password);
                     if ($authResult) {
                         $this->router->redirectToName('home');
                     } else {
-                        $authError = 'Invalid username or password';
+                        $authErrors[] = 'Invalid username or password';
                     }
                 } elseif (isset($_POST['register'])) {
                     $authResult = $this->userManager->register($username, $password);
@@ -45,20 +49,20 @@ class AuthController extends CommonController
                         if ($authResult) {
                             $this->router->redirectToName('home');
                         } else {
-                            $authError = 'Invalid username or password';
+                            $authErrors[] = 'Invalid username or password';
                         }
                     } else {
-                        $authError = 'Registration failed or user exists';
+                        $authErrors[] = 'Registration failed or user exists';
                     }
                 }
             }
         } catch (Exception) {
-            $authError = 'Registration failed! Internal error';
+            $authErrors[] = 'Registration failed! Internal error';
         } finally {
             $this->getTemplate('AuthTemplate', [
                 'token' => $this->userManager->generateCsrfToken(),
                 'noAuthInHeader' => true,
-                'authError' => $authError,
+                'authErrors' => $authErrors,
                 'styles' => ['main'],
             ]);
         }
@@ -69,6 +73,10 @@ class AuthController extends CommonController
      */
     public function logout(): never
     {
+        if (!$this->userManager->userCan('logout')) {
+            $this->exitWithError('Access denied', 403);
+        }
+
         $this->userManager->logout();
         $this->router->redirectToName('login');
     }
@@ -78,6 +86,10 @@ class AuthController extends CommonController
      */
     public function unregister(): never
     {
+        if (!$this->userManager->userCan('unregister')) {
+            $this->exitWithError('Access denied', 403);
+        }
+
         $user = $this->userManager->getCurrentUser();
 
         if ($user) {

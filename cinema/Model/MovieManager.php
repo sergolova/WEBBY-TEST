@@ -3,14 +3,15 @@
 namespace Model;
 
 use Error;
+use Exception;
 
 class MovieManager
 {
-    private const TABLE_NAME = 'movies';
-    public const FORMAT_ENUMS = ['VHS', 'DVD', 'Blu-ray'];
-
-    public static ?MovieManager $instance = null;
+    private static ?MovieManager $instance = null;
     private readonly DatabaseManager $db;
+    private const TABLE_NAME = 'movies';
+
+    public const FORMAT_ENUMS = ['VHS', 'DVD', 'Blu-ray'];
 
     public function __construct()
     {
@@ -39,7 +40,7 @@ class MovieManager
         actors VARCHAR(256),
         description TEXT)";
 
-        if ($this->db->conn->query($createTableQuery) !== TRUE) {
+        if (!$this->db->conn->query($createTableQuery)) {
             throw new Error('Error creating table:' . $this->db->conn->error);
         }
     }
@@ -48,50 +49,54 @@ class MovieManager
     {
         $query = 'SELECT * FROM ' . self::TABLE_NAME . ' WHERE id = ?';
         $statement = $this->db->conn->prepare($query);
-        $statement->bind_param('i', $id);
-        $statement->execute();
+        $row = null;
 
-        $result = $statement->get_result();
-
-        if ($result->num_rows > 0) {
+        if ($statement) {
+            $statement->bind_param('i', $id);
+            $statement->execute();
+            $result = $statement->get_result();
+            $statement->close();
             $row = $result->fetch_assoc();
-            return Movie::FromArray($row);
         }
-
-        return null;
+        return is_array($row) ? Movie::FromArray($row) : null;
     }
 
     public function getMovies(): array
     {
-
         $query = 'SELECT * FROM ' . self::TABLE_NAME . ' ORDER BY title ASC';
         $statement = $this->db->conn->prepare($query);
+
         if ($statement) {
             $statement->execute();
+            $result = $statement->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            $statement->close();
 
-            $queryResult = $statement->get_result();
-            $result = $queryResult->fetch_all(MYSQLI_ASSOC);
-            return array_map(fn($el) => Movie::FromArray($el), $result);
+            return array_map(fn($el) => Movie::FromArray($el), $rows);
         }
         return [];
     }
 
+    /**
+     * @throws Exception
+     */
     public function queryMovies(string $queryKey, string $queryValue): array
     {
         if ($queryKey !== 'title' && $queryKey !== 'actors') {
-            return [];
+            throw new Exception('Invalid query keys');
         }
-        $queryKey = mysqli_real_escape_string($this->db->conn, $queryKey);
-        $queryValue = '%' . mysqli_real_escape_string($this->db->conn, $queryValue) . '%';
 
         $query = 'SELECT * FROM ' . self::TABLE_NAME . " WHERE $queryKey LIKE ? ORDER BY title ASC";
+        $queryValue = '%' . $queryValue . '%';
         $statement = $this->db->conn->prepare($query);
         if ($statement) {
             $statement->bind_param('s', $queryValue);
             $statement->execute();
-            $queryResult = $statement->get_result();
-            $result = $queryResult->fetch_all(MYSQLI_ASSOC);
-            return array_map(fn($el) => Movie::FromArray($el), $result);
+            $result = $statement->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            $statement->close();
+
+            return array_map(fn($el) => Movie::FromArray($el), $rows);
         }
         return [];
     }
@@ -104,27 +109,26 @@ class MovieManager
         if ($statement) {
             $statement->bind_param('i', $id);
             $statement->execute();
-            return !$statement->errno;
-        } else {
-            return false;
+            $result = !$statement->errno;
+            $statement->close();
+            return $result;
         }
+
+        return false;
     }
 
     public function addMovie(Movie $movie): bool
     {
-        try {
-            $query = 'INSERT INTO ' . self::TABLE_NAME . ' (title, release_year, format, actors, description) VALUES (?, ?, ?, ?, ?)';
-            $statement = $this->db->conn->prepare($query);
+        $query = 'INSERT INTO ' . self::TABLE_NAME . ' (title, release_year, format, actors, description) VALUES (?, ?, ?, ?, ?)';
+        $statement = $this->db->conn->prepare($query);
 
-            if ($statement) {
-                $statement->bind_param('sisss', $movie->title, $movie->release_year, $movie->format, $movie->actors, $movie->description);
-                $result = $statement->execute();
-                $statement->close();
-                if ($result) {
-                    return true;
-                }
-            }
-        } catch (\Exception) {
+        if ($statement) {
+            $statement->bind_param('sisss', $movie->title, $movie->release_year,
+                $movie->format, $movie->actors, $movie->description);
+            $statement->execute();
+            $result = !$statement->errno;
+            $statement->close();
+            return $result;
         }
         return false;
     }
@@ -132,6 +136,7 @@ class MovieManager
     /**
      *  Converts multiline text separated by blank lines into an array of arrays.
      *  The elements of an array will be a collection of key-value pairs.
+     *  Lines that do not contain a key-value pair are ignored.
      *
      * @param string $data
      * @return array
@@ -140,7 +145,7 @@ class MovieManager
     {
         $result = [];
 
-        $lines = explode("\n", ltrim($data, "\xEF\xBB\xBF"));
+        $lines = explode("\n", $data);
         $lines[] = '';
 
         $item = [];
@@ -150,15 +155,14 @@ class MovieManager
             if ($line) {
                 $pair = explode(':', $line, 2);
                 if (count($pair) == 2) {
-
                     $key = trim($pair[0]);
                     $value = trim($pair[1]);
                     $item[$key] = $value;
                 } else {
-                    // invalid data format in the line. Skip
+                    // invalid data format in the line. Ignore
                     continue;
                 }
-            } elseif ($item) {
+            } elseif ($item) { // add to result
                 $result[] = $item;
                 $item = [];
             }
@@ -166,11 +170,46 @@ class MovieManager
         return $result;
     }
 
+    /** At the beginning of the text data there may be an encoding signature.
+     *  We recognize the encoding, remove the signature and convert the data to the required encoding
+     * @param string $data - raw data
+     * @return string
+     */
+    private function decodeTextData(string $data): string
+    {
+        $encoding = 'UTF-8'; // default
+
+        $signatures = [
+            'UTF-8' => "\xEF\xBB\xBF",
+            'UTF-16LE' => "\xFF\xFE",
+            'UTF-16BE' => "\xFE\xFF",
+        ];
+
+        // remove signature
+        foreach ($signatures as $enc => $sign) {
+            $dataSignature = substr($data, 0, strlen($sign));
+            if ($dataSignature === $sign) {
+                $data = substr($data, strlen($sign));
+                $encoding = $enc;
+                break;
+            }
+        }
+        return mb_convert_encoding($data, 'UTF-8', $encoding);
+    }
+
+    /** Adds Movies from text data
+     * @param string|null $data raw text data
+     * @return array|int[] import status array. Keys:
+     * - num_error - the number of structures from which it was not possible to create a valid Movie model;
+     * - num_skip - the number of Movies that are already in the repository;
+     * - num_add - number of Movies added to the repository
+     */
     public function import(?string $data): array
     {
         if (!$data) {
             return [];
         }
+        $data = $this->decodeTextData($data);
         $rawItems = $this->parseTextData($data);
 
         $result = [
@@ -191,6 +230,7 @@ class MovieManager
             foreach ($moviesData as $movieData) {
                 try { // safe read of each item
                     $movie = Movie::FromArray($movieData);
+
                     if ($this->movieExists($movie->title, $movie->release_year)) {
                         $result['num_skip']++;
                     } elseif ($this->addMovie($movie)) {
@@ -209,18 +249,13 @@ class MovieManager
 
     public function movieExists(string $title, int $releaseYear): bool
     {
-        $title = mysqli_real_escape_string($this->db->conn, $title);
-
         $query = 'SELECT * FROM ' . self::TABLE_NAME . " WHERE title = ? AND release_year = ?";
         $statement = $this->db->conn->prepare($query);
-        if ($statement) {
-            $statement->bind_param('si', $title, $releaseYear);
-            $statement->execute();
-            $queryResult = $statement->get_result();
+        $statement->bind_param('si', $title, $releaseYear);
+        $statement->execute();
+        $result = $statement->get_result();
 
-            return $queryResult->num_rows > 0;
-        }
-        return false;
+        return $result->num_rows > 0;
     }
 
 }

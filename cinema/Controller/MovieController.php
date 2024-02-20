@@ -5,7 +5,6 @@ namespace Controller;
 use Model\Movie;
 use Model\MovieManager;
 use Model\Router;
-use Model\UserManager as UserManager;
 use \Exception as Exception;
 
 class MovieController extends CommonController
@@ -156,10 +155,14 @@ class MovieController extends CommonController
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $this->csrfCheck();
 
-                $id = $_POST['movie_id'];
-                $movieDeleted = $this->movieManager->removeMovie($id);
-                if ($movieDeleted) {
-                    $params = ['message' => 'Movie deleted', 'message_type' => 'success'];
+                $id = $_POST['movie_id'] ?? 0;
+
+                $movie = $this->movieManager->getMovie($id);
+                if ($movie) {
+                    $movieDeleted = $this->movieManager->removeMovie($id);
+                    if ($movieDeleted) {
+                        $params = ['message' => 'Movie deleted', 'message_type' => 'success'];
+                    }
                 }
             }
         } catch (Exception) {
@@ -178,12 +181,17 @@ class MovieController extends CommonController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $movie_id = $_GET['id'] ?? 0;
+            $movie = $this->movieManager->getMovie($movie_id);
 
-            $this->getTemplate('MovieDetailsTemplate', [
-                'user' => $this->userManager->getCurrentUser(),
-                'movie' => $this->movieManager->getMovie($movie_id),
-                'styles' => ['main', 'movies'],
-            ]);
+            if ($movie) {
+                $this->getTemplate('MovieDetailsTemplate', [
+                    'user' => $this->userManager->getCurrentUser(),
+                    'movie' => $movie,
+                    'styles' => ['main', 'movies'],
+                ]);
+            } else {
+                $this->exitWithError('Movie not found', 404);
+            }
         } else {
             $this->exitWithError('Method not supported', 405);
         }

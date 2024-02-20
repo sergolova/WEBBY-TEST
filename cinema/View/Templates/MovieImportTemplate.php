@@ -15,7 +15,7 @@
 </div>
 
 <script>
-    window.addEventListener('click', (event) => {
+    window.addEventListener('mousedown', (event) => {
         const modal = document.getElementById('importMovieModal');
         if (event.target === modal) {
             modal.style.display = 'none';

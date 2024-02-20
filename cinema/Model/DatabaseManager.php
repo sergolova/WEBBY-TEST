@@ -16,7 +16,7 @@ class DatabaseManager
     public function __construct()
     {
         if (!$this->load()) {
-            throw new \Error('Invalid database config');
+            throw new Error('Invalid database config');
         }
 
         $this->conn = $this->initConnection();
