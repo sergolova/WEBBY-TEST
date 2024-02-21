@@ -64,10 +64,16 @@ class UserManager
      * @param string $userName
      * @return array - array of errors
      */
-    public function validateUserName(string $userName): array {
+    public function validateUserName(?string $userName): array
+    {
         $result = [];
-        if (strlen($userName) < 3) {
-            $result[] = 'UserName length must be more than 3 characters';
+
+        if ($userName === null || empty(trim($userName))) {
+            $result[] = 'User name is empty';
+        } else {
+            if (strlen($userName) < 3) {
+                $result[] = 'User name length must be more than 3 characters';
+            }
         }
         return $result;
     }
@@ -76,10 +82,16 @@ class UserManager
      * @param string $password
      * @return array - array of errors
      */
-    public function validatePassword(string $password): array {
+    public function validatePassword(?string $password): array
+    {
         $result = [];
-        if (strlen($password) < 2) {
-            $result[] = 'Password length must be more than 3 characters';
+
+        if (empty($password)) {
+            $result[] = 'Password is empty';
+        } else {
+            if (strlen($password) < 3) {
+                $result[] = 'Password length must be more than 3 characters';
+            }
         }
         return $result;
     }
@@ -90,8 +102,7 @@ class UserManager
      */
     public function userCan(string|array $code = ''): bool
     {
-        $user = $this->getCurrentUser();
-        return $user && ($user->can($code));
+        return (bool)$this->getCurrentUser()?->can($code);
     }
 
     public function getCurrentUser(): ?User
@@ -204,7 +215,7 @@ class UserManager
             $statement->close();
             return $result;
         }
-        
+
         return false;
     }
 

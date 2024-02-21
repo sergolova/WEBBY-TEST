@@ -22,8 +22,8 @@ if (!extension_loaded('mbstring')) {
 // DEFINE GLOBAL CONSTANTS
 
 const PROJECT_DIR = __DIR__;
-const TEMPLATES_DIR = PROJECT_DIR . '/View/Templates';
-const STYLES_DIR = PROJECT_DIR . '/View/Styles';
-const CONTROLLER_DIR = PROJECT_DIR . '/Controller';
-const CONFIG_DIR = PROJECT_DIR . '/Config';
+const TEMPLATES_DIR = PROJECT_DIR . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR . 'Templates';
+const STYLES_DIR = PROJECT_DIR . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR . 'Styles';
+const CONTROLLER_DIR = PROJECT_DIR . DIRECTORY_SEPARATOR . 'Controller';
+const CONFIG_DIR = PROJECT_DIR . DIRECTORY_SEPARATOR . 'Config';
 define("STYLES_URL", 'http://' . $_SERVER['HTTP_HOST'] . '/View/Styles');

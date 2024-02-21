@@ -34,10 +34,10 @@ class MovieController extends CommonController
 
         try {
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-                $query_value = trim(@$_GET['query_value']);
-                $query_key = trim(@$_GET['query_key']);
-                $message = trim(@$_GET['message']);
-                $messageType = trim(@$_GET['message_type']);
+                $query_value = trim($_GET['query_value'] ?? '');
+                $query_key = trim($_GET['query_key'] ?? '');
+                $message = trim($_GET['message'] ?? '');
+                $messageType = trim($_GET['message_type'] ?? '');
 
                 if ($query_value && $query_key) {
                     $movies = $this->movieManager->queryMovies($query_key, $query_value);
@@ -118,7 +118,7 @@ class MovieController extends CommonController
                 $this->csrfCheck();
                 $file = @$_FILES['file'];
 
-                if (@$file['error'] === UPLOAD_ERR_OK) {
+                if ($file && @$file['error'] === UPLOAD_ERR_OK) {
                     $text = file_get_contents($file['tmp_name'] ?? '');
                     if ($text) {
                         $importResult = $this->movieManager->import($text);

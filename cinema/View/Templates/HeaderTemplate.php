@@ -11,6 +11,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel='icon' href='/View/Images/favicon.png' type='image/x-icon'>
+    <link rel='preload' href='/View/Images/bg.webp' as="image">
+    <link rel='prerender' href='/View/Images/bg.webp'>
     <title><?= $title ?? 'Cinema' ?></title>
 
     <?php if (isset($styles)) : ?>

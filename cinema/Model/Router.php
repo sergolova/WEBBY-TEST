@@ -26,7 +26,7 @@ class Router
 
     protected function load(): bool
     {
-        $jsonString = file_get_contents(CONFIG_DIR . '/' . self::CONFIG_NAME);
+        $jsonString = file_get_contents(CONFIG_DIR . DIRECTORY_SEPARATOR . self::CONFIG_NAME);
         $data = json_decode($jsonString, true);
         $this->routes = is_array($data) ? $data : [];
 

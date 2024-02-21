@@ -37,7 +37,7 @@ class DatabaseManager
 
     protected function load(): bool
     {
-        $jsonString = file_get_contents(CONFIG_DIR . '/' . self::CONFIG_NAME);
+        $jsonString = file_get_contents(CONFIG_DIR . DIRECTORY_SEPARATOR . self::CONFIG_NAME);
         $data = json_decode($jsonString, true);
 
         if (is_array($data)) {
