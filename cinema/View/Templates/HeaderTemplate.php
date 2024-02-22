@@ -29,7 +29,7 @@
     <?php if (!isset($noAuthInHeader)): ?>
         <div class='user-info'>
             <?php if (isset($user)): ?>
-                <span>Welcome, <?= $user->username ?></span>
+                <span>Welcome, <?= htmlspecialchars($user->username) ?></span>
                 <a href="/logout" class="auth-btn">Logout</a>
                 <a href='/unregister' class='auth-btn'>Unregister</a>
             <?php else : ?>

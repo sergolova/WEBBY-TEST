@@ -10,8 +10,7 @@ class MovieManager
     private static ?MovieManager $instance = null;
     private readonly DatabaseManager $db;
     private const TABLE_NAME = 'movies';
-
-    public const FORMAT_ENUMS = ['VHS', 'DVD', 'Blu-ray'];
+    private const CHARSET = 'utf8mb4_unicode_ci';
 
     public function __construct()
     {
@@ -29,19 +28,26 @@ class MovieManager
 
     public function install(): void
     {
-        $enums = array_map(fn($el) => "'$el'", self::FORMAT_ENUMS);
+        $enums = array_map(fn($el) => "'$el'", Movie::constraints()['format_enums']);
         $enums = implode(', ', $enums);
 
         $createTableQuery = "CREATE TABLE IF NOT EXISTS " . self::TABLE_NAME . " (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(256) NOT NULL ,
+        title VARCHAR(" . Movie::constraints()['max_title_length'] . ") NOT NULL ,
         release_year INT(4) NOT NULL,
         format ENUM($enums) NOT NULL,
-        actors VARCHAR(256),
-        description TEXT)";
+        actors VARCHAR(" . Movie::constraints()['max_actors_length'] . "),
+        description TEXT) CHARACTER SET utf8mb4 COLLATE " . self::CHARSET;
 
         if (!$this->db->conn->query($createTableQuery)) {
             throw new Error('Error creating table:' . $this->db->conn->error);
+        }
+        
+        // Change Collation of an existing table
+        $mod = "ALTER TABLE " . self::TABLE_NAME . " CONVERT TO CHARACTER SET utf8mb4 COLLATE " . self::CHARSET;
+
+        if (!$this->db->conn->query($mod)) {
+            throw new Error('Error change table:' . $this->db->conn->error);
         }
     }
 
@@ -221,10 +227,10 @@ class MovieManager
         if ($rawItems) {
             // We extract from the array only keys that are useful to us
             $moviesData = array_map(fn($el) => [
-                'title' => @$el['Title'],
-                'release_year' => @$el['Release Year'],
-                'format' => @$el['Format'],
-                'actors' => @$el['Stars'],
+                'title' => htmlspecialchars(@$el['Title']), // strip_tags ????
+                'release_year' => htmlspecialchars(@$el['Release Year']),
+                'format' => htmlspecialchars(@$el['Format']),
+                'actors' => htmlspecialchars(@$el['Stars']),
             ], $rawItems);
 
             foreach ($moviesData as $movieData) {
@@ -233,12 +239,12 @@ class MovieManager
 
                     if ($this->movieExists($movie->title, $movie->release_year)) {
                         $result['num_skip']++;
-                    } elseif ($this->addMovie($movie)) {
+                    } elseif ($movie->validate() && $this->addMovie($movie)) {
                         $result['num_add']++;
                     } else {
                         $result['num_error']++;
                     }
-                } catch (\Exception $e) {
+                } catch (\Error) {
                     $result['num_error']++;
                 }
             }

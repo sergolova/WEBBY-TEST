@@ -71,6 +71,7 @@
     color: #333;
     text-decoration: none;
     letter-spacing: 1px;
+    word-wrap: break-word;
 }
 
 .movies-container .movie-list a:hover {
@@ -86,6 +87,10 @@
     font-weight: bold;
     margin-right: 8px;
     margin-left: 20px;
+}
+
+.movies-container .movie-item .movie-value {
+    word-wrap: break-word;
 }
 
 .movies-container .movie-list button {
@@ -209,10 +214,12 @@
     margin-top: 0 !important;
     margin-bottom: 10px;
     text-align: center;
+    word-wrap: break-word;
 }
 
 .movie-details p {
     margin-bottom: 10px;
+    word-wrap: break-word;
 }
 
 .movie-details span {

@@ -4,13 +4,12 @@ Format: VHS
 Stars: Mel Brooks, Clevon Little, Harvey Korman, Gene Wilder, Slim Pickens, Madeline Kahn
 
 
-Title: Casablanca
+Title:
 Release Year: 1942
 Format: DVD
 Stars: Humphrey Bogart, Ingrid Bergman, Claude Rains, Peter Lorre
 
 
-Title: Charade
 Release Year: 1953
 Format: DVD
 Stars: Audrey Hepburn, Cary Grant, Walter Matthau, James Coburn, George Kennedy
@@ -40,7 +39,7 @@ Format: DVD
 Stars: Jim Henson, Frank Oz, Dave Geolz, Mel Brooks, James Coburn, Charles Durning, Austin Pendleton
 
 
-Title: Get Shorty 
+Title: Get Shorty
 Release Year: 1995
 Format: DVD
 Stars: John Travolta, Danny DeVito, Renne Russo, Gene Hackman, Dennis Farina

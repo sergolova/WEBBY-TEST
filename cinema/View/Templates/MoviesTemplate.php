@@ -6,7 +6,6 @@
 /** @var string $queryValue */
 /** @var string $message */
 /** @var string $messageType */
-
 /** @var string $queryKey */
 
 use Model\Movie;
@@ -65,9 +64,13 @@ include 'HeaderTemplate.php';
                 <?php foreach ($movies as $movie): ?>
                     <div class='movie-item' id='movie-item-<?= $movie->id ?>'>
                         <a href='/movie-details?id=<?= $movie->id ?>'><?= $movie->title ?></a>
-                        <p><span class='movie-attr'>Year:</span><span><?= $movie->release_year ?></span></p>
-                        <p><span class='movie-attr'>Format:</span><span><?= $movie->format ?></span></p>
-                        <p><span class='movie-attr'>Actors:</span><span><?= $movie->actors ?></span></p>
+                        <p><span class='movie-attr'>Year:</span><span class="movie-value"><?= $movie->release_year ?></span></p>
+                        <p><span class='movie-attr'>Format:</span><span class="movie-value"><?= $movie->format ?></span></p>
+                        <?php if (@$movie->actors): ?>
+                            <p><span class='movie-attr'>Actors:</span>
+                                <span class="movie-value"><?= $movie->actors ?></span>
+                            </p>
+                        <?php endif; ?>
                         <?php if ($user?->can('movie del')): ?>
                             <form action="/movie-delete" method="post">
                                 <input type='hidden' name='csrf_token' value='<?= $token; ?>'>

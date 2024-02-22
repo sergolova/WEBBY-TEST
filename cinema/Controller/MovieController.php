@@ -57,7 +57,7 @@ class MovieController extends CommonController
                 'queryKey' => $query_key,
                 'message' => $message,
                 'messageType' => $messageType,
-                'formats' => MovieManager::FORMAT_ENUMS,
+                'constraints' => Movie::constraints(),
                 'styles' => ['main', 'movies'],
             ]);
         }
@@ -81,16 +81,16 @@ class MovieController extends CommonController
                 $this->csrfCheck();
 
                 $movie = Movie::FromArray([
-                    'title' => $_POST['title'],
-                    'release_year' => $_POST['year'],
-                    'format' => $_POST['format'],
-                    'actors' => @$_POST['actors'],
-                    'description' => @$_POST['description'],
+                    'title' => htmlspecialchars($_POST['title']), // strip_tags ????
+                    'release_year' => htmlspecialchars($_POST['year']),
+                    'format' => htmlspecialchars($_POST['format']),
+                    'actors' => htmlspecialchars(@$_POST['actors']),
+                    'description' => htmlspecialchars(@$_POST['description']),
                 ]);
-
+//                var_dump($movie->title); die;
                 if ($this->movieManager->movieExists($movie->title, $movie->release_year)) {
                     $params = ['message' => "Movie '$movie->title'($movie->release_year) already exists", 'message_type' => 'info'];
-                } elseif ($this->movieManager->addMovie($movie)) {
+                } elseif ($movie->validate() && $this->movieManager->addMovie($movie)) {
                     $params = ['message' => "Movie '$movie->title' added successful", 'message_type' => 'success'];
                 }
             }
@@ -155,7 +155,7 @@ class MovieController extends CommonController
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $this->csrfCheck();
 
-                $id = $_POST['movie_id'] ?? 0;
+                $id = (int)@$_POST['movie_id'];
 
                 $movie = $this->movieManager->getMovie($id);
                 if ($movie) {
